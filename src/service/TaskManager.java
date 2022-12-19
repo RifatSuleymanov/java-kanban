@@ -1,10 +1,9 @@
-package controller;
+package service;
 
 import model.Epic;
 import model.Status;
 import model.SubTask;
 import model.Task;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 public class TaskManager {
@@ -13,20 +12,17 @@ public class TaskManager {
     private final HashMap<Integer, Epic> epics = new HashMap<>();
     private final HashMap<Integer, SubTask> subtasks = new HashMap<>();
 
-
     public void createTask(Task task){
         task.setId(counter);
         tasks.put(task.getId(), task);
         counter++;
     }
 
-
     public void createEpic(Epic epic){
         epic.setId(counter);
         epics.put(epic.getId(), epic);
         counter++;
     }
-
 
     public void createSubtasks(SubTask subTask){
         if(!epics.containsKey(subTask.getEpicID())){
@@ -38,27 +34,18 @@ public class TaskManager {
         getSubTaskList(subTask.getEpicID()).add(subTask.getId());
         updateStatusEpic(subTask.getEpicID());
     }
+
     public Task getTask(int id) {
-        if (tasks.get(id) != null) {
-            return tasks.get(id);
-        } else {
-            return null;
-        }
+        return tasks.get(id);
     }
 
     public Epic getEpic(int id) {
-        if (epics.get(id) != null) {
-            return epics.get(id);
-        } else {
-            return null;
-        }
+        return epics.get(id);
+
     }
+
     public SubTask getSubTask(int id) {
-        if (subtasks.get(id) != null) {
-            return subtasks.get(id);
-        } else {
-            return null;
-        }
+        return subtasks.get(id);
     }
 
     public HashMap<Integer, Task> getTasks() {
@@ -80,26 +67,28 @@ public class TaskManager {
         epics.clear();
         subtasks.clear();
     }
+
     public void clearSubTasks() {
         subtasks.clear();
-        for (Integer id : epics.keySet()) {
-            epics.get(id).setSubTasksID(null);
-            updateStatusEpic(id);
+        for(Epic id : epics.values()){
+            epics.get(id.getId()).setSubTasksId(null);
+            updateStatusEpic(id.getId());
         }
     }
-    public ArrayList<Integer> getSubTaskList(int epicID) {
-        if (epics.get(epicID) != null) {
-            return epics.get(epicID).getSubTasksID();
+
+    public ArrayList<Integer> getSubTaskList(int epicId) {
+        if (epics.get(epicId) != null) {
+            return epics.get(epicId).getSubTasksID();
         } else {
             return null;
         }
     }
+
     public void updateStatusEpic(int id) {
         Epic epic = new Epic(id, epics.get(id).getName(),
                 epics.get(id).getDescription());
-        epic.setSubTasksID(epics.get(id).getSubTasksID());
-
-        int statusNew = 0; //
+        epic.setSubTasksId(epics.get(id).getSubTasksID());
+        int statusNew = 0;
         int statusInProgress = 0;
         int statusDone = 0;
         if (epic.getSubTasksID() != null) {
@@ -114,7 +103,6 @@ public class TaskManager {
                     }
                 }
             }
-
             if (statusInProgress == 0 && statusDone == 0) {
                 epic.setStatus(Status.NEW);
             } else if (statusDone > 0 || (statusNew < 1 && statusInProgress < 1)) {
@@ -125,7 +113,6 @@ public class TaskManager {
         } else {
             epic.setStatus(Status.NEW);
         }
-
         epics.put(epic.getId(), epic);
     }
     public void removeTask(int id) {
@@ -139,19 +126,13 @@ public class TaskManager {
         }
         epics.remove(id);
     }
-    public void updateStatusSubTask(int id, Status subTaskStatus) {
-        SubTask subTask = new SubTask(id, subtasks.get(id).getName(),
-                subtasks.get(id).getDescription(),
-                subtasks.get(id).getEpicID());
-        subTask.setStatus(subTaskStatus);
 
-        subtasks.put(subTask.getId(), subTask);
-        updateStatusEpic(subTask.getEpicID());
+    public void updateStatusSubTask(int id, Status subTaskStatus) throws Exception {
+        var subtask = subtasks.get(id);
+        if (subtasks == null) throw new Exception("Task not found. Id " + id);
+        subtask.setStatus(subTaskStatus);
+        var epic = epics.get(subtask.getEpicID());
+        if (epic == null) throw new Exception("Task not found. Id " + id);
+        epic.getStatus();
     }
-
-
-
 }
-
-
-

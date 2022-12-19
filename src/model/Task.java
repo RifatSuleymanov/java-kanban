@@ -33,6 +33,9 @@ public class Task {
     public void setId(int id) {
         this.id = id;
     }
+    public void setTaskStatus(Status taskStatus) {
+        this.status = taskStatus;
+    }
 
     public String getName() {
         return name;
@@ -77,7 +80,5 @@ public class Task {
     public int hashCode() {
         return Objects.hash(name, description, id, status);
     }
-
-
 
 }

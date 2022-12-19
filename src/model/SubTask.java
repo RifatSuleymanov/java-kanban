@@ -3,8 +3,7 @@ package model;
 import java.util.Objects;
 
 public class SubTask extends Task{
-    private final int epicID; //
-
+    private final int epicID;
 
     public SubTask(String name, String description, int epicID) {
         super(name, description);
@@ -28,6 +27,7 @@ public class SubTask extends Task{
                 ", extraInfo='" + super.getDescription() + '\'' +
                 ", taskStatus=" + super.getStatus() + '}';
     }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -36,9 +36,9 @@ public class SubTask extends Task{
         SubTask subTask = (SubTask) o;
         return epicID == subTask.epicID;
     }
+
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), epicID);
     }
-
 }
