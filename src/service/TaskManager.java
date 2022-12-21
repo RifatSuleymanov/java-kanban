@@ -2,15 +2,16 @@ package service;
 
 import model.Epic;
 import model.Status;
-import model.SubTask;
+import model.Subtask;
 import model.Task;
 import java.util.ArrayList;
 import java.util.HashMap;
+
 public class TaskManager {
     private int counter = 0;
     private final HashMap<Integer, Task> tasks = new HashMap<>();
     private final HashMap<Integer, Epic> epics = new HashMap<>();
-    private final HashMap<Integer, SubTask> subtasks = new HashMap<>();
+    private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
 
     public void createTask(Task task){
         task.setId(counter);
@@ -24,7 +25,7 @@ public class TaskManager {
         counter++;
     }
 
-    public void createSubtasks(SubTask subTask){
+    public void createSubtasks(Subtask subTask){
         if(!epics.containsKey(subTask.getEpicID())){
             throw new RuntimeException("Ошибка");
         }
@@ -41,10 +42,9 @@ public class TaskManager {
 
     public Epic getEpic(int id) {
         return epics.get(id);
-
     }
 
-    public SubTask getSubTask(int id) {
+    public Subtask getSubTask(int id) {
         return subtasks.get(id);
     }
 
@@ -56,13 +56,14 @@ public class TaskManager {
         return new HashMap<>(epics);
     }
 
-    public HashMap<Integer, SubTask> getSubTasks() {
+    public HashMap<Integer, Subtask> getSubTasks() {
         return new HashMap<>(subtasks);
     }
 
     public void clearTasks() {
         tasks.clear();
     }
+
     public void clearEpics() {
         epics.clear();
         subtasks.clear();
@@ -115,13 +116,15 @@ public class TaskManager {
         }
         epics.put(epic.getId(), epic);
     }
+
     public void removeTask(int id) {
         tasks.remove(id);
     }
+
     public void removeEpic(int id) {
         if (getSubTaskList(id) != null) {
-            for (int subTaskID : getSubTaskList(id)) {
-                subtasks.remove(subTaskID);
+            for (int subTaskId : getSubTaskList(id)) {
+                subtasks.remove(subTaskId);
             }
         }
         epics.remove(id);

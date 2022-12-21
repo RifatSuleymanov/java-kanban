@@ -1,7 +1,7 @@
 import service.TaskManager;
 import model.Epic;
 import model.Status;
-import model.SubTask;
+import model.Subtask;
 import model.Task;
 
 public class Main {
@@ -24,21 +24,21 @@ public class Main {
         taskManager.createEpic(epic2);
         int epicId2 = epic2.getId();
 
-        SubTask subTask1 = new SubTask("Продуктовый магазин", "Молоко, сыр, хлеб, йогурты", epicId1);
-        taskManager.createSubtasks(subTask1);
-        int subTaskId1 = subTask1.getId();
+        Subtask subtask1 = new Subtask("Продуктовый магазин", "Молоко, сыр, хлеб, йогурты", epicId1);
+        taskManager.createSubtasks(subtask1);
+        int subTaskId1 = subtask1.getId();
 
-        SubTask subTask2 = new SubTask("Хозтовары", "Порошок, мыло, гель для душа", epicId1);
-        taskManager.createSubtasks(subTask2);
-        int subTaskId2 = subTask2.getId();
+        Subtask subtask2 = new Subtask("Хозтовары", "Порошок, мыло, гель для душа", epicId1);
+        taskManager.createSubtasks(subtask2);
+        int subTaskId2 = subtask2.getId();
 
-        SubTask subTask3 = new SubTask("Замена масло", "Было налито масло Лукойл", epicId2);
-        taskManager.createSubtasks(subTask3);
-        int subTaskId3 = subTask3.getId();
+        Subtask subtask3 = new Subtask("Замена масло", "Было налито масло Лукойл", epicId2);
+        taskManager.createSubtasks(subtask3);
+        int subTaskId3 = subtask3.getId();
 
-        SubTask subTask4 = new SubTask("Замена фильтра", "Заменили масляной фильтр", epicId2);
-        taskManager.createSubtasks(subTask4);
-        int subTaskId4 = subTask4.getId();
+        Subtask subtask4 = new Subtask("Замена фильтра", "Заменили масляной фильтр", epicId2);
+        taskManager.createSubtasks(subtask4);
+        int subTaskId4 = subtask4.getId();
 
         System.out.println("Список дел:");
         for (Integer key : taskManager.getTasks().keySet()) {
