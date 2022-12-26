@@ -1,0 +1,15 @@
+package service.interfaces.impl;
+
+import service.interfaces.HistoryManager;
+import service.interfaces.TaskManager;
+
+public abstract class Managers implements TaskManager {
+
+    public static TaskManager getDefault(){
+        return new InMemoryTaskManager();
+    }
+
+    public static HistoryManager getDefaultHistory() {
+        return new InMemoryHistoryManager();
+    }
+}

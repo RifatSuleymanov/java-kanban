@@ -1,4 +1,4 @@
-package service;
+package service.interfaces.impl;
 
 import model.Task;
 import service.interfaces.HistoryManager;
@@ -7,11 +7,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InMemoryHistoryManager implements HistoryManager {
+
     private final List<Task> requestHistory = new ArrayList<>();
+
+    public static final int HISTORY_SIZE = 9;
 
     @Override
     public void add(Task task) {
-        while (requestHistory.size() > 9){
+        while (requestHistory.size() > HISTORY_SIZE){
             requestHistory.remove(0);
         }
         requestHistory.add(task);

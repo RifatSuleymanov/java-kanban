@@ -1,4 +1,4 @@
-package service;
+package service.interfaces.impl;
 
 import model.Epic;
 import model.Status;
@@ -45,26 +45,29 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task getTask(int id) {
-        if (tasks.get(id) != null) {
-            history.add(tasks.get(id));
+        var task = tasks.get(id);
+        if (task != null){
+            history.add(task);
         }
-        return tasks.get(id);
+        return task;
     }
 
     @Override
     public Epic getEpic(int id) {
-        if (epics.get(id) != null) {
-            history.add(epics.get(id));
+        var epic = epics.get(id);
+        if (epic != null){
+            history.add(epic);
         }
-        return epics.get(id);
+        return epic;
     }
 
     @Override
     public Subtask getSubTask(int id) {
-        if(subtasks.get(id) != null){
-            history.add(subtasks.get(id));
+        var subTask = subtasks.get(id);
+        if (subTask != null){
+            history.add(subTask);
         }
-        return subtasks.get(id);
+        return subTask;
     }
 
     @Override

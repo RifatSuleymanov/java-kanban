@@ -1,4 +1,4 @@
-import service.InMemoryTaskManager;
+import service.interfaces.impl.InMemoryTaskManager;
 import model.Epic;
 import model.Status;
 import model.Subtask;
