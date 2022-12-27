@@ -1,7 +1,7 @@
-package service.interfaces.impl;
+package service.impl;
 
-import service.interfaces.HistoryManager;
-import service.interfaces.TaskManager;
+import service.HistoryManager;
+import service.TaskManager;
 
 public abstract class Managers implements TaskManager {
 

@@ -1,7 +1,7 @@
-package service.interfaces.impl;
+package service.impl;
 
 import model.Task;
-import service.interfaces.HistoryManager;
+import service.HistoryManager;
 
 import java.util.ArrayList;
 import java.util.List;

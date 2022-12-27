@@ -1,11 +1,11 @@
-package service.interfaces.impl;
+package service.impl;
 
 import model.Epic;
 import model.Status;
 import model.Subtask;
 import model.Task;
-import service.interfaces.HistoryManager;
-import service.interfaces.TaskManager;
+import service.HistoryManager;
+import service.TaskManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
