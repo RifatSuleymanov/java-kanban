@@ -8,9 +8,9 @@ import java.util.List;
 
 public class InMemoryHistoryManager implements HistoryManager {
 
-    private final List<Task> requestHistory = new ArrayList<>();
-
     public static final int HISTORY_SIZE = 9;
+
+    private final List<Task> requestHistory = new ArrayList<>();
 
     @Override
     public void add(Task task) {
