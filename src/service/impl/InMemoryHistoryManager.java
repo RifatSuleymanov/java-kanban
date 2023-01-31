@@ -33,50 +33,50 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     private static class CustomLinkedList<T extends Task> {
-        private final Map<Integer, Node<T>> memory = new HashMap<>();   // Хешмапа для хранения нод
-        private Node<T> head;                                           // Ссылка на голову
-        private Node<T> tail;                                           // Ссылка на хвост
+        private final Map<Integer, Node<T>> memory = new HashMap<>();
+        private Node<T> head;
+        private Node<T> tail;
 
-        public void addLast(T element) {                                // Добавление элемента в историю
-            final Node<T> oldTail = tail;                               // Сохраняем старый хвост
-            final Node<T> newNode = new Node<>(oldTail, element, null); // Новая нода, prev это старый хвост
-            tail = newNode;                                             // Хвост теперь новая нода
-            if (oldTail == null) {                                      // Если предыдущего хвоста не было (мапа пустая)
-                head = newNode;                                         // то новая нода теперь голова
-            } else {                                                    // Если мапа не пустая
-                oldTail.next = newNode;                                 // то в старый хвост кладем ссылку на новую ноду
+        public void addLast(T element) {
+            final Node<T> oldTail = tail;
+            final Node<T> newNode = new Node<>(oldTail, element, null);
+            tail = newNode;
+            if (oldTail == null) {
+                head = newNode;
+            } else {
+                oldTail.next = newNode;
             }
-            Node<T> oldNode = memory.put(element.getId(), newNode);     // Кладем новую ноду в хешмапу
-            if (oldNode != null) {                                      // Если элемент с таким айди в хешмапе был
-                removeNode(oldNode);                                    // то его нужно удалить из цепочки нод
+            Node<T> oldNode = memory.put(element.getId(), newNode);
+            if (oldNode != null) {
+                removeNode(oldNode);
             }
         }
 
-        private void removeNode(Node<T> node) {                         // Удаление ноды из списка
+        private void removeNode(Node<T> node) {
             final Node<T> prev = node.prev;
             final Node<T> next = node.next;
-            if (prev == null) {                                         // Если нода была головой
-                head = next;                                            // то голова теперь та, которая была за ней
-            } else {                                                    // Если нода имела предыдущую
-                prev.next = next;                                       // то исключаем текущую ноду из цепочки ссылок
+            if (prev == null) {
+                head = next;
+            } else {
+                prev.next = next;
             }
-            if (next == null) {                                         // Если нода была хвостом
-                tail = prev;                                            // то хвост теперь та, которая была перед ней
-            } else {                                                    // Если нода имела следующую
-                next.prev = prev;                                       // то исключаем текущую ноду из цепочки ссылок
-            }
-        }
-
-        private void removeNode(int id) {                               // Удаление ноды по айди
-            if (memory.get(id) != null) {                               // Если нода есть в хешмапе
-                removeNode(memory.get(id));                             // удаляем ноду, вызывая метод выше
+            if (next == null) {
+                tail = prev;
+            } else {
+                next.prev = prev;
             }
         }
 
-        private ArrayList<T> getHistory() {                             // Получить ArrayList с историей
+        private void removeNode(int id) {
+            if (memory.get(id) != null) {
+                removeNode(memory.get(id));
+            }
+        }
+
+        private ArrayList<T> getHistory() {
             ArrayList<T> result = new ArrayList<>();
-            for (Node<T> node = head; node != null; node = node.next) { // Начать с головы, дойти до хвоста
-                result.add(node.data);                                  // Добавить все элементы
+            for (Node<T> node = head; node != null; node = node.next) {
+                result.add(node.data);
             }
             return result;
         }

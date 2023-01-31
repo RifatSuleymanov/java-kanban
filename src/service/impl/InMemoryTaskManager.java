@@ -108,13 +108,13 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void clearSubTasks() {
-        for (Integer id : subtasks.keySet()) {                  // Удаление всех сабтасков из истории
+        for (Integer id : subtasks.keySet()) {
             history.remove(id);
         }
         subtasks.clear();
-        for (Integer id : epics.keySet()) {                     // Проходимся по хешмапе эпиков
-            epics.get(id).setSubTasksId(null);                  // Очистка списка сабтасков
-            updateStatusEpic(id);                               // Обновление статуса эпика
+        for (Integer id : epics.keySet()) {
+            epics.get(id).setSubTasksId(null);
+            updateStatusEpic(id);
         }
     }
 
