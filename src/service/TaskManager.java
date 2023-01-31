@@ -40,6 +40,8 @@ public interface TaskManager {
 
     void removeTask(int id);
 
+    void removeSubTask(int id);
+
     void removeEpic(int id);
 
     void updateStatusSubTask(int id, Status subTaskStatus) throws Exception;
