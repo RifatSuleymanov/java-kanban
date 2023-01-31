@@ -81,12 +81,10 @@ public class InMemoryHistoryManager implements HistoryManager {
             return result;
         }
 
-
         private static class Node<E> {
             private final E data;
             private Node<E> prev;
             private Node<E> next;
-
 
             public Node(Node<E> prev, E data, Node<E> next) {
                 this.data = data;

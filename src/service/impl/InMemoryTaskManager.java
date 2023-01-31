@@ -167,6 +167,7 @@ public class InMemoryTaskManager implements TaskManager {
             tasks.remove(id);
         }
     }
+
     @Override
     public void removeSubTask(int id) {
         if (subtasks.get(id) != null) {
@@ -204,6 +205,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (epic == null) throw new Exception("Task not found. Id " + id);
         epic.getStatus();
     }
+
     public HistoryManager getHistory(){
         return history;
     }

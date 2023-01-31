@@ -10,7 +10,6 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
 
-
         InMemoryTaskManager inMemoryTaskManager = (InMemoryTaskManager) Managers.getDefault();
 
         Task task1 = new Task("Съездить к родителям", "В выходные съездить в гости к родителям");
@@ -52,7 +51,6 @@ public class Main {
         int subTaskId2 = subtask2.getId();
         System.out.println("Сабтаск №2 к эпику №1 добавлен");
         System.out.println("***********************************************************************************");
-
 
         Subtask subtask3 = new Subtask("Замена масло", "Было налито масло Лукойл", epicId2);
         inMemoryTaskManager.createSubtasks(subtask3);
