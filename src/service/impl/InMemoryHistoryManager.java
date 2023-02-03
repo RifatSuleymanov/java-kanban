@@ -9,27 +9,25 @@ import java.util.List;
 import java.util.Map;
 
 public class InMemoryHistoryManager implements HistoryManager {
-    private final CustomLinkedList<Task> requestHistory;
+    private final CustomLinkedList<Task> historyList;
+
     public InMemoryHistoryManager() {
-        this.requestHistory = new CustomLinkedList<>();
+        this.historyList = new CustomLinkedList<>();
     }
-
-    public static final int HISTORY_SIZE = 9;
-
 
     @Override
     public void add(Task task) {
-       requestHistory.addLast(task);
+       historyList.addLast(task);
     }
 
     @Override
     public void remove(int id) {
-        requestHistory.removeNode(id);
+        historyList.removeNode(id);
     }
 
     @Override
     public List<Task> getHistory() {
-        return requestHistory.getHistory();
+        return historyList.getHistory();
     }
 
     private static class CustomLinkedList<T extends Task> {
