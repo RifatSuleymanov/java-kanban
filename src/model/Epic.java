@@ -21,6 +21,20 @@ public class Epic extends Task{
         this.subtasksIds = subTasksId;
     }
 
+    public TaskType getTaskType() {
+        return TaskType.EPIC;
+    }
+    public String getSubtasksString() {
+        if (subtasksIds != null) {
+            String result = "";
+            for (int id : subtasksIds) {
+                result = String.join(",", Integer.toString(id));
+            }
+            return result;
+        } else {
+            return " ";
+        }
+    }
     @Override
     public String toString() {
         return "Epic{" +

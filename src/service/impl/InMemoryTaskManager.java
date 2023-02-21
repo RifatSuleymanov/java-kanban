@@ -55,19 +55,23 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Epic getEpic(int id) {
         var epic = epics.get(id);
-        if (epic != null){
-            history.add(epic);
+        if (epics.get(id) != null) {
+            history.add(epics.get(id));
+            return epics.get(id);
+        } else {
+            throw new RuntimeException("Ошибка: нет эпика с таким id!");
         }
-        return epic;
     }
 
     @Override
     public Subtask getSubTask(int id) {
-        var subTask = subtasks.get(id);
-        if (subTask != null){
-            history.add(subTask);
+        var subtask = subtasks.get(id);
+        if (subtasks.get(id) != null) {
+            history.add(subtasks.get(id));
+            return subtasks.get(id);
+        } else {
+            throw new RuntimeException("Ошибка: нет сабтаска с таким id!");
         }
-        return subTask;
     }
 
     @Override
