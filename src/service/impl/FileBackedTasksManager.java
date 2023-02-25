@@ -16,7 +16,14 @@ import java.util.stream.Collectors;
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
     private final Path path;  // Путь для сохранения файла
-    private final String divide = ";";   // Разделитель
+    private static final String FIELD_SEPARATOR = ";";   // Разделитель
+
+    private static final int ID_INDEX = 0;
+    private static final int NAME_INDEX = 2;
+    private static final int  DESCRIPTION_INDEX = 3;
+    private static final int STATUS_INDEX = 4;
+    private final int EPIC_ID_INDEX = 5;
+
 
     public FileBackedTasksManager(@NotNull File file) {
         this.path = file.toPath();
@@ -73,7 +80,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         manager1.getTask(task1ID);
         System.out.println("Запрашиваем Таск №2");
         manager1.getTask(task2ID);
-        System.out.println("Запрашиваем Эпик №2 (ПУСТОЙ)");
+        System.out.println("Запрашиваем Эпик №2 ");
         manager1.getEpic(epicId2);
         System.out.println("***********************************************************************************");
 
@@ -117,7 +124,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     public void save() {
         try (Writer writer = new FileWriter(path.toString(), StandardCharsets.UTF_8)) {
 
-            writer.write(String.join(divide, new String[]{
+            writer.write(String.join(FIELD_SEPARATOR, new String[]{
                     "id",
                     "TaskType",
                     "title",
@@ -254,7 +261,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     public String getTaskString(@NotNull Task task) {
-        return String.join(divide, new String[]{
+        return String.join(FIELD_SEPARATOR, new String[]{
                 Integer.toString(task.getId()),
                 task.getTaskType().name(),
                 task.getTitle(),
@@ -265,7 +272,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     public String getTaskString(@NotNull Epic epic) {
-        return String.join(divide, new String[]{
+        return String.join(FIELD_SEPARATOR, new String[]{
                 Integer.toString(epic.getId()),
                 epic.getTaskType().name(),
                 epic.getTitle(),
@@ -276,7 +283,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     public String getTaskString(@NotNull Subtask subTask) {
-        return String.join(divide, new String[]{
+        return String.join(FIELD_SEPARATOR, new String[]{
                 Integer.toString(subTask.getId()),
                 subTask.getTaskType().name(),
                 subTask.getTitle(),
@@ -324,36 +331,36 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     }
 
-    public static Optional<List<Integer>> historyListFromString(String value) {
+    public static List<Integer> historyListFromString(String value) {
         if (value != null) {
             List<Integer> historyList = Arrays.stream(value.split(","))
                     .map(Integer::parseInt)
                     .collect(Collectors.toList());
-            return Optional.of(historyList);
+            return historyList;
         } else {
-            return Optional.empty();
+            return List.of();
         }
     }
 
     public void addTaskByType(@NotNull String str) {
-        String[] taskArray = str.split(divide);
+        String[] taskArray = str.split(FIELD_SEPARATOR);
         TaskType taskType = TaskType.valueOf(taskArray[1]);
         switch (taskType) {
             case TASK -> createTask(getTaskFromString(
-                    taskArray[0],
-                    taskArray[2],
-                    taskArray[3],
-                    taskArray[4]));
+                    taskArray[ID_INDEX],
+                    taskArray[NAME_INDEX],
+                    taskArray[DESCRIPTION_INDEX],
+                    taskArray[STATUS_INDEX]));
             case EPIC -> createEpic(getEpicFromString(
-                    taskArray[0],
-                    taskArray[2],
-                    taskArray[3]));
+                    taskArray[ID_INDEX],
+                    taskArray[NAME_INDEX],
+                    taskArray[DESCRIPTION_INDEX]));
             case SUBTASK -> createSubtasks(getSubtaskFromString(
-                    taskArray[0],
-                    taskArray[2],
-                    taskArray[3],
-                    taskArray[4],
-                    taskArray[5]));
+                    taskArray[ID_INDEX],
+                    taskArray[NAME_INDEX],
+                    taskArray[DESCRIPTION_INDEX],
+                    taskArray[STATUS_INDEX],
+                    taskArray[EPIC_ID_INDEX]));
         }
     }
 
@@ -369,7 +376,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                         fileBackedTasksManager.addTaskByType(str);
                     } else if (str != null && str.isEmpty()) {
                         String historyLine = bufferedReader.readLine();
-                        List<Integer> historyList = historyListFromString(historyLine).orElse(Collections.emptyList());
+                        List<Integer> historyList = historyListFromString(historyLine);
                         Map<Integer, Task> taskMap = fileBackedTasksManager.getTasks();
                         Map<Integer, Epic> epicMap = fileBackedTasksManager.getEpics();
                         Map<Integer, Subtask> subTaskMap = fileBackedTasksManager.getSubTasks();
