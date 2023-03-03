@@ -1,10 +1,9 @@
-import service.TaskManager;
-import service.impl.InMemoryTaskManager;
-import model.Epic;
-import model.Status;
-import model.Subtask;
-import model.Task;
-import service.impl.Managers;
+import main.service.impl.InMemoryTaskManager;
+import main.model.Epic;
+import main.model.Status;
+import main.model.Subtask;
+import main.model.Task;
+import main.service.impl.Managers;
 
 public class Main {
 
@@ -65,7 +64,7 @@ public class Main {
 
         System.out.println("Поставили статус DONE всем делам.");
         for (Integer key : inMemoryTaskManager.getTasks().keySet()){
-            inMemoryTaskManager.getTask(key).setTaskStatus(Status.DONE);
+            inMemoryTaskManager.getTask(key).setStatus(Status.DONE);
         }
         for(Integer key : inMemoryTaskManager.getEpic(epicId1).getSubTasksID()){
             inMemoryTaskManager.updateStatusSubTask(key, Status.DONE);
