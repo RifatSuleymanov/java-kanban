@@ -27,7 +27,7 @@ public class Task {
         this.duration = duration;
     }
 
-    public Task(String name, String description, Status status) {    // Конструктор — название, инфо и статус
+    public Task(String name, String description, Status status) {
         this.name = name;
         this.description = description;
         this.status = status;

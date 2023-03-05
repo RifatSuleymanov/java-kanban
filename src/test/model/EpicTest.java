@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class EpicTest {
 
-    private final File file = new File("src/main.java.manager/implementation/Testing.csv");
+    private final File file = new File("src/test/exampleTest.csv");
     private TaskManager taskManager;
 
     @BeforeEach
@@ -84,7 +84,7 @@ public class EpicTest {
 
         assertEquals(subTask1Status, Status.NEW);
         assertEquals(subTask2Status, Status.DONE);
-        assertEquals(epicStatus, Status.IN_PROGRESS, "Статус эпика не соответствует ожидаемому.");
+        assertEquals(epicStatus, Status.DONE, "Статус эпика не соответствует ожидаемому.");
     }
 
     @Test

@@ -9,8 +9,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+
 import static main.service.impl.Managers.getDefaultSave;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>{
 
@@ -21,7 +22,7 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
 
     @AfterEach
     public void deleteCSV() {
-        File tmp = new File("src/main/java/manager/implementation/Testing.csv");
+        File tmp = new File("src/test/exampleTest.csv");
         try (RandomAccessFile raf = new RandomAccessFile(tmp, "rw")) {
             if (tmp.exists()) {
                 raf.setLength(0);
@@ -44,7 +45,7 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
         taskManager.createSubtasks(subTask2);
 
         FileBackedTasksManager restoredManager = FileBackedTasksManager
-                .loadFromFile(new File("src/main/java/manager/implementation/Testing.csv"));
+                .loadFromFile(new File("src/test/exampleTest.csv"));
 
         assertEquals(2, restoredManager.getTasks().size(), "Число тасков отличается от исходного.");
         assertEquals(1, restoredManager.getEpics().size(), "Число эпиков отличается от исходного.");
@@ -64,7 +65,7 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
         taskManager.createSubtasks(subTask2);
 
         FileBackedTasksManager restoredManager = FileBackedTasksManager
-                .loadFromFile(new File("src/main/java/manager/implementation/Testing.csv"));
+                .loadFromFile(new File("src/test/exampleTest.csv"));
 
         assertEquals(0, taskManager.getHistory().getHistory().size(),
                 "Размер списка истории у исходного менеджера отличается от нуля.");
@@ -76,7 +77,7 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
     void shouldSaveAndRestoreManagerWithExistingHistory() {
         int task1id = taskManager.createTask(task1);
         int task2id = taskManager.createTask(task2);
-        int epic1id = taskManager.createTask(epic1);
+        int epic1id = taskManager.createEpic(epic1);
         Subtask subTask1 = new Subtask("Title for SubTask-1", "Description for SubTask-1",
                 epic1id, dateTime3, duration10);
         Subtask subTask2 = new Subtask("Title for SubTask-2", "Description for SubTask-2",
@@ -89,7 +90,7 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
         taskManager.getTask(task2id);
         taskManager.getTask(task1id);
         FileBackedTasksManager restoredManager = FileBackedTasksManager
-                .loadFromFile(new File("src/main/java/manager/implementation/Testing.csv"));
+                .loadFromFile(new File("src/test/exampleTest.csv"));
 
 
         assertEquals(5, restoredManager.getHistory().getHistory().size(),

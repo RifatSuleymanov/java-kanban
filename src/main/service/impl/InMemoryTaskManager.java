@@ -18,7 +18,6 @@ public class InMemoryTaskManager implements TaskManager {
     private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
     private final HistoryManager history = Managers.getDefaultHistory();
 
-
     Comparator<Task> taskByStartTimeComparator = (task1, task2) -> {
         int result = 0;
         if (task1.getStartTime() == null && task2.getStartTime() == null) {
@@ -36,22 +35,21 @@ public class InMemoryTaskManager implements TaskManager {
         }
         return result;
     };
+
     private final TreeSet<Task> listOfTasksSortedByTime = new TreeSet<>(taskByStartTimeComparator);
 
     @Override
     public int createTask(Task task){
-        task.setId(counter);
+        task.setId(counter++);
         tasks.put(task.getId(), task);
-        counter++;
         compareTasksByTimeAndAddToTreeSet(task);
         return task.getId();
     }
 
     @Override
     public int createEpic(Epic epic){
-        epic.setId(counter);
+        epic.setId(counter++);
         epics.put(epic.getId(), epic);
-        counter++;
         return epic.getId();
     }
 
@@ -60,9 +58,8 @@ public class InMemoryTaskManager implements TaskManager {
         if(!epics.containsKey(subTask.getEpicID())){
             throw new RuntimeException("Ошибка");
         }
-        subTask.setId(counter);
+        subTask.setId(counter++);
         subtasks.put(subTask.getId(), subTask);
-        counter++;
         getSubTaskList(subTask.getEpicID()).add(subTask.getId());
         updateStatusEpic(subTask.getEpicID());
         setStartTimeForEpic(subTask.getEpicID());
@@ -173,7 +170,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public ArrayList<Integer> getSubTaskList(int epicId) {
         if (epics.get(epicId) != null) {
-            return epics.get(epicId).getSubTasksID();
+            return (ArrayList<Integer>) epics.get(epicId).getSubTasksID();
         } else {
             throw new RuntimeException("Ошибка: нет эпика с таким id!");
         }
@@ -183,7 +180,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void updateStatusEpic(int id) {
         Epic epic = new Epic(id, epics.get(id).getName(),
                 epics.get(id).getDescription());
-        epic.setSubTasksId(epics.get(id).getSubTasksID());
+        epic.setSubTasksId((ArrayList<Integer>) epics.get(id).getSubTasksID());
         int statusNew = 0;
         int statusInProgress = 0;
         int statusDone = 0;
@@ -269,9 +266,7 @@ public class InMemoryTaskManager implements TaskManager {
     public HistoryManager getHistory(){
         return history;
     }
-
-
-
+    
     private void compareTasksByTimeAndAddToTreeSet(Task task) {
         listOfTasksSortedByTime.add(task);
         LocalDateTime prev = LocalDateTime.MIN;

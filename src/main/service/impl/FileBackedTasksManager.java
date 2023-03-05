@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 public class FileBackedTasksManager extends InMemoryTaskManager {
     private final Path path;  // Путь для сохранения файла
     private static final String FIELD_SEPARATOR = ";";   // Разделитель
-
     private static final int ID_INDEX = 0;
     private static final int NAME_INDEX = 2;
     private static final int  DESCRIPTION_INDEX = 3;
@@ -29,7 +28,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     private final int EPIC_ID_INDEX = 5;
     private final int START_TIME_ID_INDEX = 6;
     private final int DURATION_ID_INDEX = 7;
-
 
     public FileBackedTasksManager(@NotNull File file) {
         this.path = file.toPath();
@@ -39,34 +37,34 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         FileBackedTasksManager manager1 = Managers.getDefaultSave();
 
         Task task1 = new Task("Съездить к родителям", "В выходные съездить в гости к родителям");
-        manager1.addTaskWithID(task1);
+        manager1.createTask(task1);
         int task1ID = task1.getId();
         System.out.println("Таск №1 добавлен");
 
         Task task2 = new Task("Сделать потолки", "Установить натяжные потолки в квартире");
-        manager1.addTaskWithID(task2);
+        manager1.createTask(task2);
         int task2ID = task2.getId();
         System.out.println("Таск №2 добавлен");
         System.out.println("-----------------------------------------------------------------------------------------");
 
         Epic epic1 = new Epic("Съездить за покупками", "Закупиться на месяц");
-        manager1.addEpicWithID(epic1);
+        manager1.createEpic(epic1);
         int epicId1 = epic1.getId();
         System.out.println("Пустой эпик №1 добавлен");
 
         Epic epic2 = new Epic("ТО машины", "Отвезти машину в сервис для прохождении ТО");
-        manager1.addEpicWithID(epic2);
+        manager1.createEpic(epic2);
         int epicId2 = epic2.getId();
         System.out.println("Пустой эпик №2 добавлен");
         System.out.println("-----------------------------------------------------------------------------------------");
 
         Subtask subTask1 = new Subtask("Продуктовый магазин", "Молоко, сыр, хлеб, йогурты", epicId1);
-        manager1.addSubTaskWithID(subTask1);
+        manager1.createSubtasks(subTask1);
         int subTask1ID = subTask1.getId();
         System.out.println("Сабтаск №1 к эпику №1 добавлен");
 
         Subtask subTask2 = new Subtask("Хозтовары", "Порошок, мыло, гель для душа", epicId1);
-        manager1.addSubTaskWithID(subTask2);
+        manager1.createSubtasks(subTask2);
         int subTask2ID = subTask2.getId();
         System.out.println("Сабтаск №2 к эпику №1 добавлен");
 
@@ -162,34 +160,25 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         getTasks().put(task.getId(), task);
         save();
     }
-
     @Override
-    public int createTask(Task task) {
-        getTasks().put(task.getId(), task);
+    public int createTask(Task task){
+        super.createTask(task);
         save();
         return task.getId();
     }
-
-    public void addTaskWithID(Task task) {
-        super.createTask(task);
+    public void addEpicWithExistingID(Epic epic) {
+        getEpics().put(epic.getId(), epic);
         save();
     }
 
     @Override
     public int createEpic(Epic epic) {
-        getEpics().put(epic.getId(), epic);
+        super.createEpic(epic);
         save();
         return epic.getId();
     }
 
-    public void addEpicWithID(Epic epic) {
-        super.createEpic(epic);
-        save();
-
-    }
-
-    @Override
-    public int createSubtasks(@NotNull Subtask subTask) {
+    public void addSubTaskWithExistingID(@NotNull Subtask subTask) {
         if (!getEpics().containsKey(subTask.getEpicID())) {
             throw new RuntimeException("Ошибка: эпик отсутствует!");
         }
@@ -197,13 +186,13 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         getSubTaskList(subTask.getEpicID()).add(subTask.getId());
         updateStatusEpic(subTask.getEpicID());
         save();
-        return 0;
     }
 
-    public int addSubTaskWithID(Subtask subTask) {
-        super.createSubtasks(subTask);
+    @Override
+    public int createSubtasks(Subtask subtask){
+        super.createSubtasks(subtask);
         save();
-        return subTask.getId();
+        return subtask.getId();
     }
 
     @Override
@@ -270,10 +259,11 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void updateStatusSubTask(int id, Status subTaskStatus)  {
+    public void updateStatusSubTask(int id, Status subTaskStatus) {
         super.updateStatusSubTask(id, subTaskStatus);
         save();
     }
+
 
     public String getTaskString(@NotNull Task task) {
         if (task.getStartTime() == null) {
@@ -416,18 +406,18 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         String[] taskArray = str.split(FIELD_SEPARATOR);
         TaskType taskType = TaskType.valueOf(taskArray[1]);
         switch (taskType) {
-            case TASK -> createTask(getTaskFromString(
+            case TASK -> addTaskWithExistingID(getTaskFromString(
                     taskArray[ID_INDEX],
                     taskArray[NAME_INDEX],
                     taskArray[DESCRIPTION_INDEX],
                     taskArray[STATUS_INDEX],
                     taskArray[START_TIME_ID_INDEX],
                     taskArray[DURATION_ID_INDEX]));
-            case EPIC -> createEpic(getEpicFromString(
+            case EPIC -> addEpicWithExistingID(getEpicFromString(
                     taskArray[ID_INDEX],
                     taskArray[NAME_INDEX],
                     taskArray[DESCRIPTION_INDEX]));
-            case SUBTASK -> createSubtasks(getSubtaskFromString(
+            case SUBTASK -> addSubTaskWithExistingID(getSubtaskFromString(
                     taskArray[ID_INDEX],
                     taskArray[NAME_INDEX],
                     taskArray[DESCRIPTION_INDEX],

@@ -1,6 +1,7 @@
 package main.model;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -16,7 +17,7 @@ public class Epic extends Task{
         super(name, description);
     }
 
-    public ArrayList<Integer> getSubTasksID() {
+    public List<Integer> getSubTasksID() {
         return subtasksIds;
     }
 
