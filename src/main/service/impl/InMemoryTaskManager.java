@@ -102,17 +102,17 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public HashMap<Integer, Task> getTasks() {
-        return new HashMap<>(tasks);
+        return tasks;
     }
 
     @Override
     public HashMap<Integer, Epic> getEpics() {
-        return new HashMap<>(epics);
+        return epics;
     }
 
     @Override
     public HashMap<Integer, Subtask> getSubTasks() {
-        return new HashMap<>(subtasks);
+        return subtasks;
     }
 
     @Override
@@ -266,7 +266,7 @@ public class InMemoryTaskManager implements TaskManager {
     public HistoryManager getHistory(){
         return history;
     }
-    
+
     private void compareTasksByTimeAndAddToTreeSet(Task task) {
         listOfTasksSortedByTime.add(task);
         LocalDateTime prev = LocalDateTime.MIN;

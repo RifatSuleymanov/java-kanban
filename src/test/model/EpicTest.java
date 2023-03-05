@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class EpicTest {
 
-    private final File file = new File("src/test/exampleTest.csv");
+    private final File file = new File("src/main/service/impl/Test.csv");
     private TaskManager taskManager;
 
     @BeforeEach

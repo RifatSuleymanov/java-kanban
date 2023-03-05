@@ -22,7 +22,7 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
 
     @AfterEach
     public void deleteCSV() {
-        File tmp = new File("src/test/exampleTest.csv");
+        File tmp = new File("src/main/service/impl/Test.csv");
         try (RandomAccessFile raf = new RandomAccessFile(tmp, "rw")) {
             if (tmp.exists()) {
                 raf.setLength(0);
@@ -45,7 +45,7 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
         taskManager.createSubtasks(subTask2);
 
         FileBackedTasksManager restoredManager = FileBackedTasksManager
-                .loadFromFile(new File("src/test/exampleTest.csv"));
+                .loadFromFile(new File("src/main/service/impl/Test.csv"));
 
         assertEquals(2, restoredManager.getTasks().size(), "Число тасков отличается от исходного.");
         assertEquals(1, restoredManager.getEpics().size(), "Число эпиков отличается от исходного.");
@@ -65,7 +65,7 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
         taskManager.createSubtasks(subTask2);
 
         FileBackedTasksManager restoredManager = FileBackedTasksManager
-                .loadFromFile(new File("src/test/exampleTest.csv"));
+                .loadFromFile(new File("src/main/service/impl/Test.csv"));
 
         assertEquals(0, taskManager.getHistory().getHistory().size(),
                 "Размер списка истории у исходного менеджера отличается от нуля.");
@@ -90,7 +90,7 @@ public class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksM
         taskManager.getTask(task2id);
         taskManager.getTask(task1id);
         FileBackedTasksManager restoredManager = FileBackedTasksManager
-                .loadFromFile(new File("src/test/exampleTest.csv"));
+                .loadFromFile(new File("src/main/service/impl/Test.csv"));
 
 
         assertEquals(5, restoredManager.getHistory().getHistory().size(),

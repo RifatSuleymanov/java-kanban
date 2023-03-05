@@ -142,7 +142,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
         RuntimeException ex = Assertions.assertThrows(RuntimeException.class, executable);
 
-        assertEquals("Ошибка: эпик отсутствует!", ex.getMessage());
+        assertEquals("Ошибка", ex.getMessage());
     }
 
     @Test
