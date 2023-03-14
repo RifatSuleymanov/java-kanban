@@ -1,102 +1,88 @@
-import main.model.Epic;
-import main.model.Status;
-import main.service.impl.InMemoryTaskManager;
-import main.model.Subtask;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import main.model.Task;
-import main.service.impl.Managers;
+import main.service.Managers;
+import main.service.interfaces.TaskManager;
+import main.service.servers.HttpTaskServer;
+import main.service.servers.KVServer;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
 public class Main {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception, InterruptedException, URISyntaxException {
 
-        InMemoryTaskManager inMemoryTaskManager = (InMemoryTaskManager) Managers.getDefault();
+        System.out.println("Поехали!");
+        final URI basicUri = URI.create("http://localhost:8080/tasks/");
+        HttpClient client = HttpClient.newHttpClient();
+        Gson gson = Managers.getGson();
+        KVServer kvServer = new KVServer();
+        kvServer.start();
+        HttpTaskServer httpTaskServer = new HttpTaskServer();
+        httpTaskServer.startServer();
+        TaskManager taskManagerMain = Managers.getDefaultInMemoryTaskManager();
 
-        Task task1 = new Task("Съездить к родителям", "В выходные съездить в гости к родителям");
-        inMemoryTaskManager.createTask(task1);
-        int task1ID = task1.getId();
-        System.out.println("Таск №1 добавлен");
+        Task task1 = new Task("Поехать в магазин", "Купить продукты");
+        int task1ID = taskManagerMain.addTask(task1);
+        System.out.println("Таск №1 добавлен в локальный менеджер.");
 
-        System.out.println("***********************************************************************************");
+        String task1PostJson = gson.toJson(taskManagerMain.getTask(task1ID));
 
-        Task task2 = new Task("Сделать потолки", "Установить натяжные потолки в квартире");
-        inMemoryTaskManager.createTask(task2);
-        int task2ID = task2.getId();
-        System.out.println("Таск №2 добавлен");
-
-        System.out.println("***********************************************************************************");
-        System.out.println("***********************************************************************************");
-
-        Epic epic1 = new Epic("Съездить за покупками", "Закупиться на месяц");
-        inMemoryTaskManager.createEpic(epic1);
-        int epicId1 = epic1.getId();
-        System.out.println("Пустой эпик №1 добавлен");
-        System.out.println("***********************************************************************************");
-
-        Epic epic2 = new Epic("ТО машины", "Отвезти машину в сервис для прохождении ТО");
-        inMemoryTaskManager.createEpic(epic2);
-        int epicId2 = epic2.getId();
-        System.out.println("Пустой эпик №2 добавлен");
-        System.out.println("***********************************************************************************");
-        System.out.println("***********************************************************************************");
-
-        Subtask subtask1 = new Subtask("Продуктовый магазин", "Молоко, сыр, хлеб, йогурты", epicId1);
-        inMemoryTaskManager.createSubtasks(subtask1);
-        int subTaskId1 = subtask1.getId();
-        System.out.println("Сабтаск №1 к эпику №1 добавлен");
-        System.out.println("***********************************************************************************");
-
-        Subtask subtask2 = new Subtask("Хозтовары", "Порошок, мыло, гель для душа", epicId1);
-        inMemoryTaskManager.createSubtasks(subtask2);
-        int subTaskId2 = subtask2.getId();
-        System.out.println("Сабтаск №2 к эпику №1 добавлен");
-        System.out.println("***********************************************************************************");
-
-        Subtask subtask3 = new Subtask("Замена масло", "Было налито масло Лукойл", epicId2);
-        inMemoryTaskManager.createSubtasks(subtask3);
-        int subTaskId3 = subtask3.getId();
-        System.out.println("Сабтаск №3 к эпику №1 добавлен");
-        System.out.println("***********************************************************************************");
-
-        Subtask subtask4 = new Subtask("Замена фильтра", "Заменили масляной фильтр", epicId2);
-        inMemoryTaskManager.createSubtasks(subtask4);
-        int subTaskId4 = subtask4.getId();
-        System.out.println("***********************************************************************************");
-
-        System.out.println("Поставили статус DONE всем делам.");
-        for (Integer key : inMemoryTaskManager.getTasks().keySet()){
-            inMemoryTaskManager.getTask(key).setStatus(Status.DONE);
+        HttpRequest requestPostTask1 = HttpRequest.newBuilder()
+                .uri(URI.create(basicUri + "task/"))
+                .version(HttpClient.Version.HTTP_1_1)
+                .POST(HttpRequest.BodyPublishers.ofString(task1PostJson))
+                .build();
+        try {
+            HttpResponse<String> responsePostTask1 = client.send(requestPostTask1, HttpResponse.BodyHandlers.ofString());
+            if (responsePostTask1.statusCode() == 201) {
+                System.out.println("HttpTaskServer успешно принял Таск №1.");
+            } else {
+                System.out.println("Таск №1 не принят сервером. Сервер вернул код состояния: " + responsePostTask1.statusCode());
+                System.out.println("body: " + responsePostTask1.body().length());
+                System.out.println("uri: " + responsePostTask1.uri());
+                System.out.println("headers: " + responsePostTask1.headers());
+                System.out.println("request: " + responsePostTask1.request());
+            }
+        } catch (IOException | InterruptedException e) { // обрабатываем ошибки отправки запроса
+            System.out.println("Во время выполнения запроса возникла ошибка.\n" +
+                    "Проверьте, пожалуйста, адрес и повторите попытку.");
         }
-        for(Integer key : inMemoryTaskManager.getEpic(epicId1).getSubTasksID()){
-            inMemoryTaskManager.updateStatusSubTask(key, Status.DONE);
+
+        HttpRequest requestGetTask1 = HttpRequest.newBuilder()
+                .uri(URI.create(basicUri + "task/?id=" + task1ID))
+                .version(HttpClient.Version.HTTP_1_1)
+                .GET()
+                .build();
+
+        try {
+            HttpResponse<String> responseGetTask1 = client.send(requestGetTask1, HttpResponse.BodyHandlers.ofString());
+            if (responseGetTask1.statusCode() == 200) {
+                String task1Json = responseGetTask1.body();
+                JsonElement jsonElement = JsonParser.parseString(task1Json);
+                if (!jsonElement.isJsonObject()) {
+                    throw new RuntimeException("Получен не JsonObject.");
+                }
+                JsonObject jsonObject = jsonElement.getAsJsonObject();
+                Task receivedTask1 = gson.fromJson(jsonObject, Task.class);
+                System.out.println("HttpTaskServer успешно вернул Таск №1.");
+                System.out.println(receivedTask1);
+            } else {
+                System.out.println("Что-то пошло не так при запросе таска1 с сервера.");
+                System.out.println("Сервер вернул код состояния: " + responseGetTask1.statusCode());
+            }
+        } catch (IOException | InterruptedException e) {
+            System.out.println("Во время выполнения запроса возникла ошибка.\n" +
+                    "Проверьте, пожалуйста, адрес и повторите попытку.");
         }
-        System.out.println("***********************************************************************************");
-        System.out.println("Таски1 таск2 епик1");
-        inMemoryTaskManager.getTask(task1ID);
-        inMemoryTaskManager.getTask(task2ID);
-        inMemoryTaskManager.getEpic(epicId1);
-
-        System.out.println(inMemoryTaskManager.getHistory().getHistory());
-        System.out.println("***********************************************************************************");
-        System.out.println("Епики1 таск2");
-        inMemoryTaskManager.getEpic(epicId1);
-        inMemoryTaskManager.getTask(task2ID);
-        System.out.println(inMemoryTaskManager.getHistory().getHistory());
-        System.out.println("***********************************************************************************");
-        System.out.println("Сабтаски");
-        inMemoryTaskManager.getSubTask(subTaskId1);
-        inMemoryTaskManager.getSubTask(subTaskId2);
-        inMemoryTaskManager.getSubTask(subTaskId3);
-
-        System.out.println(inMemoryTaskManager.getHistory().getHistory());
-        System.out.println("***********************************************************************************");
-        System.out.println("Удалили сабтаски под айди №1 и №3");
-        inMemoryTaskManager.removeSubTask(subTaskId1);
-        inMemoryTaskManager.removeSubTask(subTaskId3);
-        System.out.println(inMemoryTaskManager.getHistory().getHistory());
-        System.out.println("***********************************************************************************");
-        System.out.println("Удалили epic под айди №1");
-        inMemoryTaskManager.removeEpic(epicId1);
-        System.out.println(inMemoryTaskManager.getHistory().getHistory());
-        System.out.println("***********************************************************************************");
+        httpTaskServer.stopServer();
+        kvServer.stop();
     }
 }

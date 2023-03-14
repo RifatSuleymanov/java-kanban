@@ -1,7 +1,7 @@
 package main.service.impl;
 
 import main.model.Task;
-import main.service.HistoryManager;
+import main.service.interfaces.HistoryManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;

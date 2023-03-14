@@ -1,8 +1,8 @@
-package main.service;
+package main.service.interfaces;
 
 import main.model.Epic;
 import main.model.Status;
-import main.model.Subtask;
+import main.model.SubTask;
 import main.model.Task;
 
 import java.util.ArrayList;
@@ -11,23 +11,28 @@ import java.util.List;
 
 public interface TaskManager {
 
-    int createTask(Task task);
+    int addTask(Task task);
 
-    int createEpic(Epic epic);
+    int addEpic(Epic epic);
 
-    int createSubtasks(Subtask subTask);
+    int addSubTask(SubTask subTask);
 
     Task getTask(int id);
 
     Epic getEpic(int id);
 
-    Subtask getSubTask(int id);
+    SubTask getSubTask(int id);
 
     HashMap<Integer, Task> getTasks();
 
     HashMap<Integer, Epic> getEpics();
 
-    HashMap<Integer, Subtask> getSubTasks();
+    HashMap<Integer, SubTask> getSubTasks();
+    int updateTask(Task task);
+
+    int updateEpic(Epic epic);
+
+    int updateSubTask(SubTask subTask);
 
     void clearTasks();
 

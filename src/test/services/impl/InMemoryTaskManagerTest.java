@@ -1,12 +1,12 @@
 package test.services.impl;
 
-import main.service.TaskManager;
+import main.service.interfaces.TaskManager;
 
-import static main.service.impl.Managers.getDefault;
+import static main.service.Managers.getDefaultInMemoryTaskManager;
 
 public class InMemoryTaskManagerTest extends TaskManagerTest<TaskManager> {
     @Override
     TaskManager createTaskManager() {
-        return getDefault();
+        return getDefaultInMemoryTaskManager();
     }
 }

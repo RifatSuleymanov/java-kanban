@@ -2,31 +2,30 @@ package main.model;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Locale;
 import java.util.Objects;
 
-public class Subtask extends Task{
+public class SubTask extends Task{
     private final int epicId;
 
-    public Subtask(String name, String description, int epicId) {
+    public SubTask(String name, String description, int epicId) {
         super(name, description);
         this.epicId = epicId;
     }
 
-    public Subtask(String name, String description, int epicId, LocalDateTime startTime, Duration duration){
+    public SubTask(String name, String description, int epicId, LocalDateTime startTime, Duration duration){
         super(name,description, Status.NEW, startTime, duration);
         this.epicId = epicId;
     }
-    public Subtask(int id, String name, String description,
+    public SubTask(int id, String name, String description,
                    Status subTaskStatus, int epicId, LocalDateTime startTime, Duration duration) {
         super(id, name, description, subTaskStatus, startTime, duration);
         this.epicId = epicId;
     }
-    public Subtask(int id, String name, String description, int epicID, LocalDateTime startTime, Duration duration) {
+    public SubTask(int id, String name, String description, int epicID, LocalDateTime startTime, Duration duration) {
         super(id, name, description, startTime, duration);
         this.epicId = epicID;
     }
-    public Subtask(int id, String title, String extraInfo, Status subTaskStatus, int epicId) {
+    public SubTask(int id, String title, String extraInfo, Status subTaskStatus, int epicId) {
         super(id, title, extraInfo, subTaskStatus);
         this.epicId = epicId;
     }
@@ -42,9 +41,9 @@ public class Subtask extends Task{
     public String toString() {
         return "SubTask{" + "id=" + super.getId() +
                 ", epicId=" + epicId +
-                ", title='" + super.getName() + '\'' +
-                ", extraInfo='" + super.getDescription() + '\'' +
-                ", taskStatus=" + super.getStatus() +
+                ", title='" + super.getTitle() + '\'' +
+                ", extraInfo='" + super.getExtraInfo() + '\'' +
+                ", taskStatus=" + super.getTaskStatus() +
                 ", startTime=" + super.getStartTime() +
                 ", duration=" + super.getDuration() +
                 '}';
@@ -55,7 +54,7 @@ public class Subtask extends Task{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        Subtask subTask = (Subtask) o;
+        SubTask subTask = (SubTask) o;
         return epicId == subTask.epicId;
     }
 

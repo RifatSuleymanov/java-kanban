@@ -2,9 +2,9 @@ package test.model;
 
 import main.model.Epic;
 import main.model.Status;
-import main.model.Subtask;
-import main.service.TaskManager;
-import main.service.impl.Managers;
+import main.model.SubTask;
+import main.service.interfaces.TaskManager;
+import main.service.Managers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,9 +31,9 @@ public class EpicTest {
     @Test
     public void statusShouldBeNewWhenEpicHaveNoSubtasks() {
         Epic epic1 = new Epic("Заголовок эпика", "Текст описания эпика");
-        int epic1id = taskManager.createEpic(epic1);
+        int epic1id = taskManager.addEpic(epic1);
 
-        Status epicsStatus = taskManager.getEpic(epic1id).getStatus();
+        Status epicsStatus = taskManager.getEpic(epic1id).getTaskStatus();
 
         assertEquals(epicsStatus, Status.NEW, "Статус эпика не соответствует ожидаемому.");
     }
@@ -41,13 +41,13 @@ public class EpicTest {
     @Test
     public void statusShouldBeNewWhenAllSubtasksHaveStatusNew() {
         Epic epic1 = new Epic("Заголовок эпика", "Текст описания эпика");
-        int epic1id = taskManager.createEpic(epic1);
-        Subtask subTask1 = new Subtask("Заг сабтаска-1", "Текст сабтаска-1", epic1id);
-        Subtask subTask2 = new Subtask("Заг сабтаска-2", "Текст сабтаска-2", epic1id);
-        taskManager.createSubtasks(subTask1);
-        taskManager.createSubtasks(subTask2);
+        int epic1id = taskManager.addEpic(epic1);
+        SubTask subTask1 = new SubTask("Заг сабтаска-1", "Текст сабтаска-1", epic1id);
+        SubTask subTask2 = new SubTask("Заг сабтаска-2", "Текст сабтаска-2", epic1id);
+        taskManager.addSubTask(subTask1);
+        taskManager.addSubTask(subTask2);
 
-        Status epicsStatus = taskManager.getEpic(epic1id).getStatus();
+        Status epicsStatus = taskManager.getEpic(epic1id).getTaskStatus();
 
         assertEquals(epicsStatus, Status.NEW, "Статус эпика не соответствует ожидаемому.");
     }
@@ -55,15 +55,15 @@ public class EpicTest {
     @Test
     public void statusShouldBeDoneWhenAllSubtasksHaveStatusDone() {
         Epic epic1 = new Epic("Заголовок эпика", "Текст описания эпика");
-        int epic1id = taskManager.createEpic(epic1);
-        Subtask subTask1 = new Subtask("Заг сабтаска-1", "Текст сабтаска-1", epic1id);
-        Subtask subTask2 = new Subtask("Заг сабтаска-2", "Текст сабтаска-2", epic1id);
-        taskManager.createSubtasks(subTask1);
-        taskManager.createSubtasks(subTask2);
+        int epic1id = taskManager.addEpic(epic1);
+        SubTask subTask1 = new SubTask("Заг сабтаска-1", "Текст сабтаска-1", epic1id);
+        SubTask subTask2 = new SubTask("Заг сабтаска-2", "Текст сабтаска-2", epic1id);
+        taskManager.addSubTask(subTask1);
+        taskManager.addSubTask(subTask2);
         taskManager.getEpic(epic1id).getSubTasksID()
                 .forEach(key -> taskManager.updateStatusSubTask(key, Status.DONE));
 
-        Status epicStatus = taskManager.getEpic(epic1id).getStatus();
+        Status epicStatus = taskManager.getEpic(epic1id).getTaskStatus();
 
         assertEquals(epicStatus, Status.DONE, "Статус эпика не соответствует ожидаемому.");
     }
@@ -71,34 +71,34 @@ public class EpicTest {
     @Test
     public void statusShouldBeInProgressWhenSubtasksHaveStatusNewAndDone() {
         Epic epic1 = new Epic("Заголовок эпика", "Текст описания эпика");
-        int epic1id = taskManager.createEpic(epic1);
-        Subtask subTask1 = new Subtask("Заг сабтаска-1", "Текст сабтаска-1", epic1id);
-        Subtask subTask2 = new Subtask("Заг сабтаска-2", "Текст сабтаска-2", epic1id);
-        int subTask1id = taskManager.createSubtasks(subTask1);
-        int subTask2id = taskManager.createSubtasks(subTask2);
+        int epic1id = taskManager.addEpic(epic1);
+        SubTask subTask1 = new SubTask("Заг сабтаска-1", "Текст сабтаска-1", epic1id);
+        SubTask subTask2 = new SubTask("Заг сабтаска-2", "Текст сабтаска-2", epic1id);
+        int subTask1id = taskManager.addSubTask(subTask1);
+        int subTask2id = taskManager.addSubTask(subTask2);
         taskManager.updateStatusSubTask(subTask2id, Status.DONE);
 
-        Status epicStatus = taskManager.getEpic(epic1id).getStatus();
-        Status subTask1Status = taskManager.getSubTask(subTask1id).getStatus();
-        Status subTask2Status = taskManager.getSubTask(subTask2id).getStatus();
+        Status epicStatus = taskManager.getEpic(epic1id).getTaskStatus();
+        Status subTask1Status = taskManager.getSubTask(subTask1id).getTaskStatus();
+        Status subTask2Status = taskManager.getSubTask(subTask2id).getTaskStatus();
 
         assertEquals(subTask1Status, Status.NEW);
         assertEquals(subTask2Status, Status.DONE);
-        assertEquals(epicStatus, Status.DONE, "Статус эпика не соответствует ожидаемому.");
+        assertEquals(epicStatus, Status.IN_PROGRESS, "Статус эпика не соответствует ожидаемому.");
     }
 
     @Test
     public void statusShouldBeInProgressWhenAllSubtasksHaveStatusInProgress() {
         Epic epic1 = new Epic("Заголовок эпика", "Текст описания эпика");
-        int epic1id = taskManager.createEpic(epic1);
-        Subtask subTask1 = new Subtask("Заг сабтаска-1", "Текст сабтаска-1", epic1id);
-        Subtask subTask2 = new Subtask("Заг сабтаска-2", "Текст сабтаска-2", epic1id);
-        taskManager.createSubtasks(subTask1);
-        taskManager.createSubtasks(subTask2);
+        int epic1id = taskManager.addEpic(epic1);
+        SubTask subTask1 = new SubTask("Заг сабтаска-1", "Текст сабтаска-1", epic1id);
+        SubTask subTask2 = new SubTask("Заг сабтаска-2", "Текст сабтаска-2", epic1id);
+        taskManager.addSubTask(subTask1);
+        taskManager.addSubTask(subTask2);
         taskManager.getEpic(epic1id).getSubTasksID()
                 .forEach(key -> taskManager.updateStatusSubTask(key, Status.IN_PROGRESS));
 
-        Status epicStatus = taskManager.getEpic(epic1.getId()).getStatus();
+        Status epicStatus = taskManager.getEpic(epic1.getId()).getTaskStatus();
 
         assertEquals(epicStatus, Status.IN_PROGRESS, "Статус эпика не соответствует ожидаемому.");
     }

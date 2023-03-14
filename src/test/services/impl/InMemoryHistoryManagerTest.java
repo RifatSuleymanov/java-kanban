@@ -1,9 +1,9 @@
 package test.services.impl;
 
 import main.model.Epic;
-import main.model.Subtask;
+import main.model.SubTask;
 import main.model.Task;
-import main.service.HistoryManager;
+import main.service.interfaces.HistoryManager;
 import main.service.impl.InMemoryHistoryManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,14 +26,13 @@ public class InMemoryHistoryManagerTest {
     protected Task task1 = new Task(0, "Title for Task-1", "Description for Task-1", dateTime1, duration10);
     protected Task task2 = new Task(1, "Title for Task-2", "Description for Task-2", dateTime2, duration20);
     protected Epic epic1 = new Epic(2, "Title of Epic-1", "Description for Epic-1");
-    protected Subtask subTask1 = new Subtask(3, "Title of SubTask-1",
+    protected SubTask subTask1 = new SubTask(3, "Title of SubTask-1",
             "Description for SubTask-1", 2, dateTime3, duration30);
 
     @BeforeEach
     public void updateHistoryManager() {
         historyManager = new InMemoryHistoryManager();
     }
-
 
     @Test
     void shouldAddAllTypesOfTasks() {
@@ -69,5 +68,4 @@ public class InMemoryHistoryManagerTest {
 
         assertEquals(4, actualHistory.size(), "Ошибка возвращения списка задач.");
     }
-
 }

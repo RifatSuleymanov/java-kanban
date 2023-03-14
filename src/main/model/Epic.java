@@ -1,7 +1,7 @@
 package main.model;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -13,11 +13,11 @@ public class Epic extends Task{
         super(id, name, description);
     }
 
-    public Epic(String name, String description) {
-        super(name, description);
+    public Epic(String name, String extraInfo) {
+        super(name, extraInfo);
     }
 
-    public List<Integer> getSubTasksID() {
+    public ArrayList<Integer> getSubTasksID() {
         return subtasksIds;
     }
 
@@ -53,13 +53,14 @@ public class Epic extends Task{
             return " ";
         }
     }
+
     @Override
     public String toString() {
         return "Epic{" +
-                "title='" + super.getName() + '\'' +
-                ", extraInfo='" + super.getDescription() + '\'' +
+                "title='" + super.getTitle() + '\'' +
+                ", extraInfo='" + super.getExtraInfo() + '\'' +
                 ", id=" + super.getId() +
-                ", getStatus=" + super.getStatus() +
+                ", getStatus=" + super.getTaskStatus() +
                 ", subTasksID=" + subtasksIds +
                 ", startTime=" + super.getStartTime() +
                 ", duration=" + super.getDuration() +

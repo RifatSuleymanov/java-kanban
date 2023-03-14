@@ -1,15 +1,16 @@
 package test.services.impl;
 
 import main.model.Epic;
-import main.model.Subtask;
+import main.model.SubTask;
 import main.model.Task;
-import main.service.HistoryManager;
-import main.service.TaskManager;
+import main.service.interfaces.HistoryManager;
+import main.service.interfaces.TaskManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 abstract class TaskManagerTest<T extends TaskManager> {
     public T taskManager;
 
-    abstract T createTaskManager();
+    abstract T createTaskManager() throws IOException, InterruptedException;
 
     protected LocalDateTime dateTime1 = LocalDateTime.of(2023, 2, 12, 11, 30);
     protected LocalDateTime dateTime2 = LocalDateTime.of(2023, 2, 12, 11, 45);
@@ -36,19 +37,18 @@ abstract class TaskManagerTest<T extends TaskManager> {
     protected Epic epic1 = new Epic("Title of Epic-1", "Description for Epic-1");
 
     @BeforeEach
-    public void updateTaskManager() {
+    public void updateTaskManager() throws IOException, InterruptedException {
         taskManager = createTaskManager();
     }
 
-
     @Test
     void shouldAddTask() {
-        final int id = taskManager.createTask(task1);
+        final int id = taskManager.addTask(task1);
         final Task actualTask = taskManager.getTask(id);
 
         assertNotNull(actualTask, "Задача не найдена.");
-        assertEquals("Title for Task-1", taskManager.getTask(id).getName(), "Заголовки не совпадают.");
-        assertEquals("Description for Task-1", taskManager.getTask(id).getDescription(), "Описания не совпадают.");
+        assertEquals("Title for Task-1", taskManager.getTask(id).getTitle(), "Заголовки не совпадают.");
+        assertEquals("Description for Task-1", taskManager.getTask(id).getExtraInfo(), "Описания не совпадают.");
         assertEquals(dateTime1, taskManager.getTask(id).getStartTime(), "Время старта не совпадает.");
         assertEquals(duration10, taskManager.getTask(id).getDuration(), "Продолжительность не совпадает.");
         assertEquals(dateTime1.plus(duration10), taskManager.getTask(id).getEndTime().
@@ -58,7 +58,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void shouldReturnTaskAndTasksMap() {
-        final int id = taskManager.createTask(task1);
+        final int id = taskManager.addTask(task1);
         taskManager.getTask(id);
         final Map<Integer, Task> tasks = taskManager.getTasks();
 
@@ -69,7 +69,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void shouldAddEpic() {
-        final int id = taskManager.createEpic(epic1);
+        final int id = taskManager.addEpic(epic1);
         final Epic actualEpic = taskManager.getEpic(id);
 
         assertNotNull(actualEpic, "Эпик не найден.");
@@ -78,7 +78,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void shouldReturnEpicAndEpicsMap() {
-        final int id = taskManager.createEpic(epic1);
+        final int id = taskManager.addEpic(epic1);
         final Epic actualEpic = taskManager.getEpic(id);
         final Map<Integer, Epic> epics = taskManager.getEpics();
 
@@ -89,23 +89,23 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void shouldAddSubTask() {
-        final int epicID = taskManager.createEpic(epic1);
-        Subtask subTask1 = new Subtask("Title for SubTask-1", "Description for SubTask-1",
+        final int epicID = taskManager.addEpic(epic1);
+        SubTask subTask1 = new SubTask("Title for SubTask-1", "Description for SubTask-1",
                 epicID, dateTime1, duration10);
-        final int subTask1id = taskManager.createSubtasks(subTask1);
+        final int subTask1id = taskManager.addSubTask(subTask1);
 
         assertNotNull(taskManager.getSubTask(subTask1id), "СабТаск не найден.");
     }
 
     @Test
     void shouldReturnRightAmountOfSubTasks() {
-        final int epicID = taskManager.createEpic(epic1);
-        Subtask subTask1 = new Subtask("Title for SubTask-1", "Description for SubTask-1",
+        final int epicID = taskManager.addEpic(epic1);
+        SubTask subTask1 = new SubTask("Title for SubTask-1", "Description for SubTask-1",
                 epicID, dateTime1, duration10);
-        Subtask subTask2 = new Subtask("Title for SubTask-2", "Description for SubTask-2",
+        SubTask subTask2 = new SubTask("Title for SubTask-2", "Description for SubTask-2",
                 epicID, dateTime2, duration20);
-        final int subTask1id = taskManager.createSubtasks(subTask1);
-        final int subTask2id = taskManager.createSubtasks(subTask2);
+        final int subTask1id = taskManager.addSubTask(subTask1);
+        final int subTask2id = taskManager.addSubTask(subTask2);
 
         assertNotNull(taskManager.getSubTasks(), "Хешмап с сабТасками не найден.");
         assertNotNull(taskManager.getSubTask(subTask1id), "СабТаск-1 не найден.");
@@ -114,14 +114,29 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void shouldCalculateStartTimeAndEndTime() {
-        final int epicID = taskManager.createEpic(epic1);
-        Subtask subTask1 = new Subtask("Title for SubTask-1", "Description for SubTask-1",
+    void shouldReturnListOfSubTasksId() {
+        final int epicID = taskManager.addEpic(epic1);
+        SubTask subTask1 = new SubTask("Title for SubTask-1", "Description for SubTask-1",
                 epicID, dateTime1, duration10);
-        Subtask subTask2 = new Subtask("Title for SubTask-2", "Description for SubTask-2",
+        SubTask subTask2 = new SubTask("Title for SubTask-2", "Description for SubTask-2",
                 epicID, dateTime2, duration20);
-        final int subTask1id = taskManager.createSubtasks(subTask1);
-        final int subTask2id = taskManager.createSubtasks(subTask2);
+        final int subTask1id = taskManager.addSubTask(subTask1);
+        taskManager.addSubTask(subTask2);
+
+        assertNotNull(taskManager.getSubTaskList(epicID), "Список сабтасков не возвращен.");
+        assertEquals(2, taskManager.getSubTaskList(epicID).size(), "Неверное число сабТасков.");
+        assertEquals(subTask1id, taskManager.getSubTaskList(epicID).get(0), "Неверное айди сабТаска.");
+    }
+
+    @Test
+    void shouldCalculateStartTimeAndEndTime() {
+        final int epicID = taskManager.addEpic(epic1);
+        SubTask subTask1 = new SubTask("Title for SubTask-1", "Description for SubTask-1",
+                epicID, dateTime1, duration10);
+        SubTask subTask2 = new SubTask("Title for SubTask-2", "Description for SubTask-2",
+                epicID, dateTime2, duration20);
+        final int subTask1id = taskManager.addSubTask(subTask1);
+        final int subTask2id = taskManager.addSubTask(subTask2);
 
         assertEquals(dateTime1, taskManager.getSubTask(subTask1id).getStartTime(), "Ошибка в startTime сабТаска-1.");
         assertEquals(dateTime2.plus(duration20), taskManager.getSubTask(subTask2id).getEndTime()
@@ -135,19 +150,19 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     public void shouldThrowExceptionWhenAddSubTaskWithoutEpic() {
-        int epicID = taskManager.createEpic(epic1);
-        Subtask subTask1 = new Subtask("Title for SubTask-1",
+        int epicID = taskManager.addEpic(epic1);
+        SubTask subTask1 = new SubTask("Title for SubTask-1",
                 "Description for SubTask-1", (epicID + 5), dateTime1, duration10);
-        Executable executable = () -> taskManager.createSubtasks(subTask1);
+        Executable executable = () -> taskManager.addSubTask(subTask1);
 
         RuntimeException ex = Assertions.assertThrows(RuntimeException.class, executable);
 
-        assertEquals("Ошибка", ex.getMessage());
+        assertEquals("Ошибка: родительский эпик отсутствует!", ex.getMessage());
     }
 
     @Test
     void ShouldReturnTaskAndWriteItToHistory() {
-        final int task1ID = taskManager.createTask(task1);
+        final int task1ID = taskManager.addTask(task1);
         Task actualTask = taskManager.getTask(task1ID);
 
         assertNotNull(actualTask, "Ошибка возвращения таска.");
@@ -156,7 +171,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void ShouldThrowExceptionWhenWrongTaskId() {
-        final int task1ID = taskManager.createTask(task1);
+        final int task1ID = taskManager.addTask(task1);
         Executable executable = () -> taskManager.getTask(task1ID + 1);
 
         RuntimeException ex = Assertions.assertThrows(RuntimeException.class, executable);
@@ -166,7 +181,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void ShouldReturnEpicAndWriteItToHistory() {
-        final int epic1ID = taskManager.createEpic(epic1);
+        final int epic1ID = taskManager.addEpic(epic1);
         Epic actualEpic = taskManager.getEpic(epic1ID);
 
         assertNotNull(actualEpic, "Ошибка возвращения таска.");
@@ -175,7 +190,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void ShouldThrowExceptionWhenWrongEpicId() {
-        final int epic1ID = taskManager.createEpic(epic1);
+        final int epic1ID = taskManager.addTask(epic1);
         Executable executable = () -> taskManager.getEpic(epic1ID + 1);
 
         RuntimeException ex = Assertions.assertThrows(RuntimeException.class, executable);
@@ -185,11 +200,11 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void ShouldReturnSubTaskAndWriteItToHistory() {
-        final int epic1ID = taskManager.createEpic(epic1);
-        Subtask subTask1 = new Subtask("Title for SubTask-1", "Description for SubTask-1",
+        final int epic1ID = taskManager.addEpic(epic1);
+        SubTask subTask1 = new SubTask("Title for SubTask-1", "Description for SubTask-1",
                 epic1ID, dateTime1, duration10);
-        final int subTask1ID = taskManager.createSubtasks(subTask1);
-        Subtask actualSubTask = taskManager.getSubTask(subTask1ID);
+        final int subTask1ID = taskManager.addSubTask(subTask1);
+        SubTask actualSubTask = taskManager.getSubTask(subTask1ID);
 
         assertNotNull(actualSubTask, "Ошибка возвращения таска.");
         assertEquals(subTask1ID, taskManager.getHistory().getHistory().get(0).getId(), "Ошибка менеджера истории.");
@@ -197,10 +212,10 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void ShouldThrowExceptionWhenWrongSubTaskId() {
-        final int epic1ID = taskManager.createEpic(epic1);
-        Subtask subTask1 = new Subtask("Title for SubTask-1", "Description for SubTask-1",
+        final int epic1ID = taskManager.addEpic(epic1);
+        SubTask subTask1 = new SubTask("Title for SubTask-1", "Description for SubTask-1",
                 epic1ID, dateTime1, duration10);
-        final int subTask1ID = taskManager.createSubtasks(subTask1);
+        final int subTask1ID = taskManager.addSubTask(subTask1);
         Executable executable = () -> taskManager.getSubTask(subTask1ID + 1);
 
         RuntimeException ex = Assertions.assertThrows(RuntimeException.class, executable);
@@ -210,7 +225,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void ShouldClearTaskListAndRemoveThemFromHistory() {
-        final int task1ID = taskManager.createTask(task1);
+        final int task1ID = taskManager.addTask(task1);
         Task actualTask = taskManager.getTask(task1ID);
         taskManager.clearTasks();
 
@@ -220,12 +235,12 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void ShouldClearEpicsAndSubtaskListAndRemoveThemFromHistory() {
-        final int epic1ID = taskManager.createEpic(epic1);
-        Subtask subTask1 = new Subtask("Title for SubTask-1", "Description for SubTask-1",
+        final int epic1ID = taskManager.addEpic(epic1);
+        SubTask subTask1 = new SubTask("Title for SubTask-1", "Description for SubTask-1",
                 epic1ID, dateTime1, duration10);
-        final int subTask1ID = taskManager.createSubtasks(subTask1);
+        final int subTask1ID = taskManager.addSubTask(subTask1);
         Epic actualEpic = taskManager.getEpic(epic1ID);
-        Subtask actualSubTask = taskManager.getSubTask(subTask1ID);
+        SubTask actualSubTask = taskManager.getSubTask(subTask1ID);
         taskManager.clearEpics();
 
         assertEquals(0, taskManager.getEpics().size(), "Ошибка очистки списка Эпиков.");
@@ -238,11 +253,11 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void ShouldClearSubTaskListAndRemoveThemFromHistory() {
-        final int epic1ID = taskManager.createEpic(epic1);
-        Subtask subTask1 = new Subtask("Title for SubTask-1", "Description for SubTask-1",
+        final int epic1ID = taskManager.addEpic(epic1);
+        SubTask subTask1 = new SubTask("Title for SubTask-1", "Description for SubTask-1",
                 epic1ID, dateTime1, duration10);
-        final int subTask1ID = taskManager.createSubtasks(subTask1);
-        Subtask actualSubTask = taskManager.getSubTask(subTask1ID);
+        final int subTask1ID = taskManager.addSubTask(subTask1);
+        SubTask actualSubTask = taskManager.getSubTask(subTask1ID);
         taskManager.clearSubTasks();
 
         assertEquals(0, taskManager.getSubTasks().size(), "Ошибка очистки списка сабТасков");
@@ -252,13 +267,13 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void ShouldReturnListSubtasksOfEpic() {
-        final int epicID = taskManager.createEpic(epic1);
-        Subtask subTask1 = new Subtask("Title for SubTask-1", "Description for SubTask-1",
+        final int epicID = taskManager.addEpic(epic1);
+        SubTask subTask1 = new SubTask("Title for SubTask-1", "Description for SubTask-1",
                 epicID, dateTime1, duration10);
-        Subtask subTask2 = new Subtask("Title for SubTask-2", "Description for SubTask-2",
+        SubTask subTask2 = new SubTask("Title for SubTask-2", "Description for SubTask-2",
                 epicID, dateTime2, duration20);
-        final int subTask1id = taskManager.createSubtasks(subTask1);
-        taskManager.createSubtasks(subTask2);
+        final int subTask1id = taskManager.addSubTask(subTask1);
+        taskManager.addSubTask(subTask2);
 
         List<Integer> actualSubTasksOfEpic = taskManager.getEpic(epicID).getSubTasksID();
         assertNotNull(actualSubTasksOfEpic, "Ошибка возвращения списка сабТасков эпика.");
@@ -268,7 +283,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void ShouldRemoveTaskAndRemoveItFromHistory() {
-        final int task1ID = taskManager.createTask(task1);
+        final int task1ID = taskManager.addTask(task1);
         Task actualTask = taskManager.getTask(task1ID);
         taskManager.removeTask(task1ID);
         Executable executable = () -> taskManager.getTask(task1ID);
@@ -279,12 +294,12 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void ShouldRemoveEpicAndAllItsSubtasksAndRemoveThemFromHistory() {
-        final int epicID = taskManager.createEpic(epic1);
-        Subtask subTask1 = new Subtask("Title for SubTask-1", "Description for SubTask-1",
+        final int epicID = taskManager.addEpic(epic1);
+        SubTask subTask1 = new SubTask("Title for SubTask-1", "Description for SubTask-1",
                 epicID, dateTime1, duration10);
-        final int subTask1id = taskManager.createSubtasks(subTask1);
+        final int subTask1id = taskManager.addSubTask(subTask1);
         Epic actualEpic = taskManager.getEpic(epicID);
-        Subtask actualSubTask1 = taskManager.getSubTask(subTask1id);
+        SubTask actualSubTask1 = taskManager.getSubTask(subTask1id);
         taskManager.removeEpic(epicID);
 
         assertThrows(RuntimeException.class, () -> taskManager.getEpic(epicID),
@@ -299,11 +314,11 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void ShouldRemoveSubtaskAndRemoveItFromHistory() {
-        final int epicID = taskManager.createEpic(epic1);
-        Subtask subTask1 = new Subtask("Title for SubTask-1", "Description for SubTask-1",
+        final int epicID = taskManager.addEpic(epic1);
+        SubTask subTask1 = new SubTask("Title for SubTask-1", "Description for SubTask-1",
                 epicID, dateTime1, duration10);
-        final int subTask1id = taskManager.createSubtasks(subTask1);
-        Subtask actualSubTask1 = taskManager.getSubTask(subTask1id);
+        final int subTask1id = taskManager.addSubTask(subTask1);
+        SubTask actualSubTask1 = taskManager.getSubTask(subTask1id);
         taskManager.removeSubTask(subTask1id);
 
         assertThrows(RuntimeException.class, () -> taskManager.getSubTask(subTask1id),
@@ -314,7 +329,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void ShouldReturnHistoryManager() {
-        final int task1ID = taskManager.createTask(task1);
+        final int task1ID = taskManager.addTask(task1);
         taskManager.getTask(task1ID);
         HistoryManager actualHistoryManager = taskManager.getHistory();
 
@@ -323,10 +338,10 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void ShouldAddTasksToTreeSetWhenNoTimeIntersection() {
-        final int task2id = taskManager.createTask(task2);
-        final int task3id = taskManager.createTask(new Task("Title for task without startTime and duration",
+        final int task2id = taskManager.addTask(task2);
+        final int task3id = taskManager.addTask(new Task("Title for task without startTime and duration",
                 "Description for task without startTime and duration"));
-        final int task1id = taskManager.createTask(task1);
+        final int task1id = taskManager.addTask(task1);
         Task actualTask1 = taskManager.getTask(task1id);
         taskManager.getTask(task2id);
         Task actualTask3 = taskManager.getTask(task3id);
@@ -339,13 +354,46 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void ShouldThrowExceptionWhenTimeIntersection() {
-        taskManager.createTask(task1Long);
-        Executable executable = () -> taskManager.createTask(task2);
+    void ShouldNotAddTasksToTreeSetWhenTimeIntersection() {
+        taskManager.addTask(task1Long);
+        taskManager.addTask(task2);
 
-        RuntimeException ex = Assertions.assertThrows(RuntimeException.class, executable);
+        assertNotNull(taskManager.getPrioritizedTasks(), "Ошибка возвращения списка тасков в порядке времени.");
+        assertEquals(1, taskManager.getPrioritizedTasks().size(),
+                "Размер списка задач не соответствует ожидаемому.");
+    }
 
-        assertEquals("Произошло пересечение задач по времени. Добавленная задача будет удалена.",
-                ex.getMessage());
+    @Test
+    void ShouldUpdateExistingTask() {
+        final int id = taskManager.addTask(task1);
+        Task actualTask = taskManager.getTask(id);
+        actualTask.setTitle("Updated title");
+        taskManager.updateTask(actualTask);
+
+        assertEquals("Updated title", taskManager.getTask(id).getTitle(), "Ошибка обновления таска.");
+    }
+
+    @Test
+    void ShouldUpdateExistingEpic() {
+        final int id = taskManager.addEpic(epic1);
+        Epic actualEpic = taskManager.getEpic(id);
+        actualEpic.setTitle("Updated title");
+        taskManager.updateEpic(actualEpic);
+
+        assertEquals("Updated title", taskManager.getEpic(id).getTitle(), "Ошибка обновления таска.");
+    }
+
+    @Test
+    void ShouldUpdateExistingSubTask() {
+        final int epicID = taskManager.addEpic(epic1);
+        SubTask subTask1 = new SubTask("Title for SubTask-1", "Description for SubTask-1",
+                epicID, dateTime1, duration10);
+        final int subTask1id = taskManager.addSubTask(subTask1);
+        SubTask actualSubTask = taskManager.getSubTask(subTask1id);
+        actualSubTask.setTitle("Updated title");
+        taskManager.updateSubTask(actualSubTask);
+
+        assertEquals("Updated title",
+                taskManager.getSubTask(subTask1id).getTitle(), "Ошибка обновления таска.");
     }
 }
