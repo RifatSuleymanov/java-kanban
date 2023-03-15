@@ -1,4 +1,4 @@
-package test.services.impl;
+package test.impl;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;

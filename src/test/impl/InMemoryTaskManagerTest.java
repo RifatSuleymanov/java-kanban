@@ -1,4 +1,4 @@
-package test.services.impl;
+package test.impl;
 
 import main.service.interfaces.TaskManager;
 

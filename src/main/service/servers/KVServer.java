@@ -69,17 +69,18 @@ public class KVServer {
     }
 
     private void save(HttpExchange h) throws IOException {
+        String[] str = new String[]{"/save/", "{key}"};
         try (h) {
-            System.out.println("\n/save");
+            System.out.printf("%n%s", str[0]);
             if (!hasAuth(h)) {
                 System.out.println("Запрос не авторизован, нужен параметр в query API_TOKEN со значением апи-ключа");
                 h.sendResponseHeaders(403, 0);
                 return;
             }
             if ("POST".equals(h.getRequestMethod())) {
-                String key = h.getRequestURI().getPath().substring("/save/".length());
+                String key = h.getRequestURI().getPath().substring(str[0].length());
                 if (key.isEmpty()) {
-                    System.out.println("Key для сохранения пустой. key указывается в пути: /save/{key}");
+                    System.out.printf("Key для сохранения пустой. key указывается в пути: %s%s", str[0], str[1]);
                     h.sendResponseHeaders(400, 0);
                     return;
                 }
@@ -90,10 +91,10 @@ public class KVServer {
                     return;
                 }
                 data.put(key, value);
-                System.out.println("Значение для ключа " + key + " успешно обновлено!");
+                System.out.printf("Значение для ключа %s успешно обновлено!", key);
                 h.sendResponseHeaders(200, 0);
             } else {
-                System.out.println("/save ждёт POST-запрос, а получил: " + h.getRequestMethod());
+                System.out.printf("%s ждёт POST-запрос, а получил: %s", str[0], h.getRequestMethod());
                 h.sendResponseHeaders(405, 0);
             }
         }
